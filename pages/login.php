@@ -1,22 +1,23 @@
 <?php
-session_start();
+session_start(); // Ensure session is started
 
 // Include database connection file
-require_once '../db.php';
+require_once '../db.php'; // Adjust the path to your db.php file as needed
 
 // Function to validate user credentials
 function validate_user($username, $password) {
     global $conn;
 
     // Prepare SQL statement
-    $stmt = $conn->prepare('SELECT * FROM users WHERE username = ?');
+    $stmt = $conn->prepare('SELECT id, password FROM users WHERE username = ?');
     $stmt->bind_param('s', $username);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
 
+    // Verify password
     if ($user && password_verify($password, $user['password'])) {
-        return true;
+        return $user; // Return user data including id
     } else {
         return false;
     }
@@ -26,9 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    if (validate_user($username, $password)) {
-        $_SESSION['username'] = $username; // Store username in session
-        header('Location: home.php'); // Redirect to home.php
+    $user = validate_user($username, $password);
+
+    if ($user) {
+        $_SESSION['user_id'] = $user['id']; // Store user ID in session
+        $_SESSION['username'] = $username; // Optionally store username
+        header('Location: home.php'); // Redirect to home.php in the same directory
         exit();
     } else {
         $error_message = 'Invalid username or password.';

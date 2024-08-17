@@ -12,7 +12,6 @@
         <a href="home.php" class="active">Home</a>
         <a href="add_record.php">Add Record</a>
         <a href="view_records.php">View Records</a>
-        <a href="profile.php">Profile</a>
         <a href="logout.php">Logout</a>
     </div>
 
