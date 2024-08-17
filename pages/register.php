@@ -10,11 +10,11 @@
     <h1>Register</h1>
     <form action="register.php" method="post">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" id="username" name="username" placeholder="Enter Username"required>
         <label for="email">Email:</label> <!-- Added email field -->
-        <input type="email" id="email" name="email" required>
+        <input type="email" id="email" name="email" placeholder="Enter Email" required>
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+        <input type="password" id="password" name="password" placeholder="Enter Password"required>
         <button type="submit">Register</button>
         <p>Already Have an Account? <a href="login.php">Login</a></p>
     </form>

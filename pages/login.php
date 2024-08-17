@@ -10,9 +10,9 @@
     <h1>Login</h1>
     <form action="login.php" method="post">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" id="username" name="username" placeholder="Enter Username"required>
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+        <input type="password" id="password" name="password" placeholder="Enter Password" required>
         <button type="submit">Login</button>
         <p>Dont Have an Account? <a href="register.php">Register</a></p>
     </form>
