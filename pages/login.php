@@ -1,55 +1,133 @@
+<?php
+session_start();
+
+// Include database connection file
+require_once '../db.php';
+
+// Function to validate user credentials
+function validate_user($username, $password) {
+    global $conn;
+
+    // Prepare SQL statement
+    $stmt = $conn->prepare('SELECT * FROM users WHERE username = ?');
+    $stmt->bind_param('s', $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    if ($user && password_verify($password, $user['password'])) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    if (validate_user($username, $password)) {
+        $_SESSION['username'] = $username; // Store username in session
+        header('Location: home.php'); // Redirect to home.php
+        exit();
+    } else {
+        $error_message = 'Invalid username or password.';
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-    <h1>Login</h1>
-    <form action="login.php" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" placeholder="Enter Username"required>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="Enter Password" required>
-        <button type="submit">Login</button>
-        <p>Dont Have an Account? <a href="register.php">Register</a></p>
-    </form>
-
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once "../db.php";
-
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-
-        // Use prepared statements to prevent SQL injection
-        $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $stmt->store_result();
-        
-        if ($stmt->num_rows > 0) {
-            $stmt->bind_result($user_id, $hashed_password);
-            $stmt->fetch();
-            
-            if (password_verify($password, $hashed_password)) {
-                session_start();
-                $_SESSION['user_id'] = $user_id; // Store user ID in session
-                $_SESSION['username'] = $username;
-                header("Location: home.php"); // Redirect to a page after login
-                exit();
-            } else {
-                echo "Invalid password";
-            }
-        } else {
-            echo "No user found with that username";
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f0f0 0%, #c8d6e5 100%);
         }
 
-        $stmt->close();
-        $conn->close();
-    }
-    ?>
+        .auth-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-card h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .auth-card .form-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .auth-card .form-control {
+            border-radius: 5px;
+        }
+
+        .auth-card .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .auth-card .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0056b3;
+        }
+
+        .auth-card p {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .auth-card p a {
+            color: #28a745;
+        }
+
+        .auth-card p a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <h1>Login</h1>
+            <?php if (isset($error_message)) : ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo htmlspecialchars($error_message); ?>
+                </div>
+            <?php endif; ?>
+            <form action="login.php" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+            <p>Don't Have an Account? <a href="register.php">Register</a></p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
